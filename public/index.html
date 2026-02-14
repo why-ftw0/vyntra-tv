@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vyntra.tv - Random Video Chat</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <h1>vyntra<span>.tv</span></h1>
+            </div>
+            <div class="user-profile">
+                <img id="headerAvatar" src="https://via.placeholder.com/40" alt="Profile" class="avatar">
+                <span id="headerUsername">Guest</span>
+                <a href="profile.html" class="edit-profile-btn">Edit Profile</a>
+                <button id="subscriptionBadge" class="subscription-badge" onclick="window.location.href='subscription.html'">
+                    <span class="crown">👑</span>
+                    <span id="subscriptionStatus">Free</span>
+                </button>
+            </div>
+        </header>
+
+        <main>
+            <!-- Filter Bar for Subscribers -->
+            <div class="filter-bar" id="filterBar" style="display: none;">
+                <div class="filter-section">
+                    <div class="filter-label">
+                        <span class="filter-icon">⚥</span>
+                        <span>Gender Filter</span>
+                    </div>
+                    <div class="filter-options">
+                        <button class="filter-btn active" data-gender="all">All</button>
+                        <button class="filter-btn" data-gender="male">Male</button>
+                        <button class="filter-btn" data-gender="female">Female</button>
+                        <button class="filter-btn" data-gender="non-binary">Non-binary</button>
+                    </div>
+                </div>
+                
+                <div class="filter-section">
+                    <div class="filter-label">
+                        <span class="filter-icon">🌍</span>
+                        <span>Country Filter</span>
+                    </div>
+                    <select id="countryFilter" class="country-select">
+                        <option value="all">All Countries</option>
+                        <option value="US">🇺🇸 United States</option>
+                        <option value="GB">🇬🇧 United Kingdom</option>
+                        <option value="CA">🇨🇦 Canada</option>
+                        <option value="AU">🇦🇺 Australia</option>
+                        <option value="DE">🇩🇪 Germany</option>
+                        <option value="FR">🇫🇷 France</option>
+                        <option value="ES">🇪🇸 Spain</option>
+                        <option value="IT">🇮🇹 Italy</option>
+                        <option value="JP">🇯🇵 Japan</option>
+                        <option value="KR">🇰🇷 South Korea</option>
+                        <option value="BR">🇧🇷 Brazil</option>
+                        <option value="MX">🇲🇽 Mexico</option>
+                        <option value="IN">🇮🇳 India</option>
+                        <option value="other">🌐 Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="video-container">
+                <div class="local-video">
+                    <video id="localVideo" autoplay muted playsinline></video>
+                    <div class="video-label">
+                        <img id="localAvatar" src="https://via.placeholder.com/24" alt="" class="video-avatar">
+                        <span id="localName">You</span>
+                        <span id="localGenderBadge" class="gender-badge"></span>
+                        <span id="localCountryBadge" class="country-badge"></span>
+                    </div>
+                    <div class="camera-permission-overlay" id="cameraPermissionOverlay">
+                        <div class="permission-content">
+                            <div class="camera-icon">📷</div>
+                            <h3>Camera Access Required</h3>
+                            <p>Vyntra needs access to your camera and microphone to connect you with strangers</p>
+                            <button id="requestPermissionBtn" class="btn btn-primary">Enable Camera & Microphone</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Camera Controls -->
+                    <div class="camera-controls">
+                        <button id="toggleVideoBtn" class="control-btn" title="Toggle Camera">
+                            <span class="control-icon">📹</span>
+                        </button>
+                        <button id="toggleAudioBtn" class="control-btn" title="Toggle Microphone">
+                            <span class="control-icon">🎤</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="remote-video">
+                    <video id="remoteVideo" autoplay playsinline></video>
+                    <div class="video-label">
+                        <img id="remoteAvatar" src="https://via.placeholder.com/24" alt="" class="video-avatar">
+                        <span id="remoteName">Stranger</span>
+                        <span id="remoteGenderBadge" class="gender-badge"></span>
+                        <span id="remoteCountryBadge" class="country-badge"></span>
+                    </div>
+                    <div class="waiting-overlay" id="waitingOverlay">
+                        <div class="waiting-content">
+                            <div class="spinner"></div>
+                            <h3>Looking for someone...</h3>
+                            <p id="filterStatus">Matching with everyone</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button id="startBtn" class="btn btn-primary" disabled>
+                    <span class="btn-icon">🎥</span>
+                    Start Chatting
+                </button>
+                <button id="nextBtn" class="btn btn-secondary" disabled>
+                    <span class="btn-icon">⏭️</span>
+                    Next
+                </button>
+                <button id="stopBtn" class="btn btn-danger" disabled>
+                    <span class="btn-icon">⏹️</span>
+                    Stop
+                </button>
+            </div>
+
+            <div class="chat-box">
+                <div class="chat-header">
+                    <span>💬 Live Chat</span>
+                    <span class="chat-status" id="chatStatus">Offline</span>
+                </div>
+                <div id="messages" class="messages"></div>
+                <div class="chat-input">
+                    <input type="text" id="messageInput" placeholder="Type a message..." disabled>
+                    <button id="sendBtn" class="send-btn" disabled>
+                        <span>📤</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Subscription Upgrade Modal -->
+    <div id="subscriptionModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-header">
+                <span class="crown-large">👑</span>
+                <h2>Upgrade to Premium</h2>
+                <p>Get access to exclusive features</p>
+            </div>
+            <div class="modal-body">
+                <div class="feature-list">
+                    <div class="feature">
+                        <span class="feature-icon">⚥</span>
+                        <div class="feature-text">
+                            <h3>Gender Filter</h3>
+                            <p>Choose who you want to chat with</p>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🌍</span>
+                        <div class="feature-text">
+                            <h3>Country Filter</h3>
+                            <p>Connect with people from specific countries</p>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">📹</span>
+                        <div class="feature-text">
+                            <h3>Camera Controls</h3>
+                            <p>Toggle camera on/off during chats</p>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🎤</span>
+                        <div class="feature-text">
+                            <h3>Mic Controls</h3>
+                            <p>Mute/unmute anytime</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="pricing-box">
+                    <div class="price">
+                        <span class="currency">$</span>
+                        <span class="amount">0.99</span>
+                        <span class="period">/month</span>
+                    </div>
+                    <button id="subscribeNowBtn" class="btn btn-primary btn-large btn-block">
+                        <span class="btn-icon">🔓</span>
+                        Unlock Premium Now
+                    </button>
+                    <p class="cancel-anytime">Cancel anytime • No commitments</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

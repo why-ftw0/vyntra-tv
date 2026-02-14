@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vyntra.tv - Create Your Profile</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="profile-page">
+    <div class="profile-container">
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="logo">
+                    <h1>vyntra<span>.tv</span></h1>
+                </div>
+                <h2>Create Your Profile</h2>
+                <p>Complete all steps to start chatting on Vyntra</p>
+                <div class="progress-steps">
+                    <div class="step active">1</div>
+                    <div class="step-line"></div>
+                    <div class="step">2</div>
+                    <div class="step-line"></div>
+                    <div class="step">3</div>
+                </div>
+            </div>
+
+            <form id="profileForm" class="profile-form">
+                <!-- Step 1: Basic Info -->
+                <div class="form-step active" id="step1">
+                    <h3 class="step-title">👤 Basic Information</h3>
+                    
+                    <div class="avatar-upload">
+                        <div class="avatar-preview" id="avatarPreview">
+                            <img src="https://via.placeholder.com/120" alt="Profile Avatar" id="avatarImage">
+                        </div>
+                        <div class="avatar-upload-btn">
+                            <label for="avatarInput" class="btn btn-secondary">
+                                <span class="btn-icon">📸</span>
+                                Choose Avatar
+                            </label>
+                            <input type="file" id="avatarInput" accept="image/*" hidden>
+                            <p class="avatar-hint">Square image, max 2MB</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="username">
+                            <span class="label-icon">👤</span>
+                            Display Name <span class="required">*</span>
+                        </label>
+                        <input type="text" id="username" name="username" placeholder="Enter your name" maxlength="20" required>
+                        <div class="input-hint" id="usernameHint">2-20 characters • <span id="usernameCount">0</span>/20</div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="age">
+                                <span class="label-icon">🎂</span>
+                                Age <span class="required">*</span>
+                            </label>
+                            <input type="number" id="age" name="age" min="13" max="100" placeholder="Age" required>
+                            <div class="input-hint">Must be 13+</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="gender">
+                                <span class="label-icon">⚥</span>
+                                Gender <span class="required">*</span>
+                            </label>
+                            <select id="gender" name="gender" required>
+                                <option value="" disabled selected>Select gender</option>
+                                <option value="male">♂️ Male</option>
+                                <option value="female">♀️ Female</option>
+                                <option value="non-binary">⚧️ Non-binary</option>
+                                <option value="prefer-not">⚥ Prefer not to say</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="country">
+                            <span class="label-icon">🌍</span>
+                            Country <span class="required">*</span>
+                        </label>
+                        <select id="country" name="country" required>
+                            <option value="" disabled selected>Select your country</option>
+                            <option value="US">🇺🇸 United States</option>
+                            <option value="GB">🇬🇧 United Kingdom</option>
+                            <option value="CA">🇨🇦 Canada</option>
+                            <option value="AU">🇦🇺 Australia</option>
+                            <option value="DE">🇩🇪 Germany</option>
+                            <option value="FR">🇫🇷 France</option>
+                            <option value="ES">🇪🇸 Spain</option>
+                            <option value="IT">🇮🇹 Italy</option>
+                            <option value="JP">🇯🇵 Japan</option>
+                            <option value="KR">🇰🇷 South Korea</option>
+                            <option value="BR">🇧🇷 Brazil</option>
+                            <option value="MX">🇲🇽 Mexico</option>
+                            <option value="IN">🇮🇳 India</option>
+                            <option value="other">🌐 Other</option>
+                        </select>
+                    </div>
+
+                    <button type="button" class="btn btn-primary next-step" onclick="nextStep(2)">
+                        Next Step →
+                    </button>
+                </div>
+
+                <!-- Step 2: Camera Check -->
+                <div class="form-step" id="step2">
+                    <h3 class="step-title">📹 Camera & Microphone Check</h3>
+                    
+                    <div class="camera-check">
+                        <div class="camera-check-header">
+                            <span class="check-icon">📹</span>
+                            <span>We need to verify your camera is working</span>
+                        </div>
+                        <div class="camera-preview">
+                            <video id="previewVideo" autoplay muted playsinline></video>
+                            <div class="camera-placeholder" id="cameraPlaceholder">
+                                <span class="placeholder-icon">📷</span>
+                                <p>Click "Test Camera" to start</p>
+                            </div>
+                        </div>
+                        
+                        <div class="camera-requirements">
+                            <div class="requirement" id="reqCamera">
+                                <span class="req-icon">🔴</span>
+                                Camera access
+                            </div>
+                            <div class="requirement" id="reqMic">
+                                <span class="req-icon">🔴</span>
+                                Microphone access
+                            </div>
+                        </div>
+                        
+                        <button type="button" id="testCameraBtn" class="btn btn-outline btn-large">
+                            <span class="btn-icon">🔍</span>
+                            Test Camera & Microphone
+                        </button>
+                    </div>
+
+                    <div class="form-navigation">
+                        <button type="button" class="btn btn-outline prev-step" onclick="prevStep(1)">
+                            ← Back
+                        </button>
+                        <button type="button" class="btn btn-primary next-step" onclick="nextStep(3)" id="cameraNextBtn" disabled>
+                            Next Step →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Terms & Agreement -->
+                <div class="form-step" id="step3">
+                    <h3 class="step-title">📋 Terms & Agreement</h3>
+                    
+                    <div class="terms-container">
+                        <div class="terms-box">
+                            <h4>Community Guidelines</h4>
+                            <ul>
+                                <li>Be respectful to others</li>
+                                <li>No nudity or sexual content</li>
+                                <li>No harassment or bullying</li>
+                                <li>No spam or self-promotion</li>
+                                <li>You must be 13+ years old</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="terms-box">
+                            <h4>Privacy Policy</h4>
+                            <ul>
+                                <li>Your video is never recorded</li>
+                                <li>We don't share your data</li>
+                                <li>You can delete your profile anytime</li>
+                                <li>Camera access is only used for chat</li>
+                            </ul>
+                        </div>
+                        
+                        <label class="terms-checkbox">
+                            <input type="checkbox" id="terms" required>
+                            <span class="checkbox-custom"></span>
+                            <span class="checkbox-label">
+                                I have read and agree to the <a href="#">Terms of Service</a>, 
+                                <a href="#">Community Guidelines</a>, and <a href="#">Privacy Policy</a>
+                            </span>
+                        </label>
+                        
+                        <p class="terms-warning" id="termsWarning" style="display: none; color: #f56565; margin-top: 10px;">
+                            ⚠️ You must agree to the terms to continue
+                        </p>
+                    </div>
+
+                    <div class="form-navigation">
+                        <button type="button" class="btn btn-outline prev-step" onclick="prevStep(2)">
+                            ← Back
+                        </button>
+                        <button type="submit" class="btn btn-primary btn-large" id="submitBtn">
+                            <span class="btn-icon">✨</span>
+                            Start Chatting on Vyntra
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="profile-validation" id="profileValidation">
+                <div class="validation-item" data-required="username">
+                    <span class="validation-icon">⚪</span> Display name
+                </div>
+                <div class="validation-item" data-required="age">
+                    <span class="validation-icon">⚪</span> Age (13+)
+                </div>
+                <div class="validation-item" data-required="gender">
+                    <span class="validation-icon">⚪</span> Gender
+                </div>
+                <div class="validation-item" data-required="country">
+                    <span class="validation-icon">⚪</span> Country
+                </div>
+                <div class="validation-item" data-required="camera">
+                    <span class="validation-icon">⚪</span> Camera test
+                </div>
+                <div class="validation-item" data-required="terms">
+                    <span class="validation-icon">⚪</span> Terms agreement
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Step navigation functions
+        function nextStep(step) {
+            document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
+            document.getElementById(`step${step}`).classList.add('active');
+            
+            document.querySelectorAll('.step').forEach((el, index) => {
+                if (index + 1 < step) {
+                    el.classList.add('completed');
+                } else {
+                    el.classList.remove('completed');
+                }
+            });
+        }
+        
+        function prevStep(step) {
+            document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
+            document.getElementById(`step${step}`).classList.add('active');
+        }
+    </script>
+
+    <script src="profile.js"></script>
+</body>
+</html>

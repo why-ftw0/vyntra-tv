@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vyntra.tv - Premium Subscription</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="subscription-page">
+    <div class="subscription-container">
+        <div class="subscription-header">
+            <a href="index.html" class="back-link">← Back to Chat</a>
+            <div class="logo">
+                <h1>vyntra<span>.tv</span></h1>
+            </div>
+            <h2>Upgrade Your Experience</h2>
+            <p>Choose the plan that's right for you</p>
+            
+            <!-- Profile Status Indicator -->
+            <div class="profile-status" id="profileStatus">
+                <span class="status-icon">✓</span>
+                <span class="status-text">Profile verified</span>
+            </div>
+        </div>
+
+        <div class="pricing-cards">
+            <!-- Free Plan -->
+            <div class="pricing-card free">
+                <div class="card-header">
+                    <h3>Free</h3>
+                    <div class="price">$0</div>
+                    <p class="price-period">forever</p>
+                </div>
+                <div class="card-body">
+                    <ul class="features-list">
+                        <li class="feature-item included">
+                            <span class="feature-check">✓</span>
+                            Random video chat
+                        </li>
+                        <li class="feature-item included">
+                            <span class="feature-check">✓</span>
+                            Text chat
+                        </li>
+                        <li class="feature-item excluded">
+                            <span class="feature-check">✗</span>
+                            Gender filter
+                        </li>
+                        <li class="feature-item excluded">
+                            <span class="feature-check">✗</span>
+                            Country filter
+                        </li>
+                        <li class="feature-item excluded">
+                            <span class="feature-check">✗</span>
+                            Camera on/off toggle
+                        </li>
+                        <li class="feature-item excluded">
+                            <span class="feature-check">✗</span>
+                            Mic on/off toggle
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-outline btn-block" onclick="window.location.href='index.html'">
+                        Current Plan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Premium Plan -->
+            <div class="pricing-card premium popular">
+                <div class="popular-badge">MOST POPULAR</div>
+                <div class="card-header">
+                    <h3>Premium</h3>
+                    <div class="price">
+                        <span class="currency">$</span>
+                        <span class="amount">0.99</span>
+                    </div>
+                    <p class="price-period">per month</p>
+                </div>
+                <div class="card-body">
+                    <ul class="features-list">
+                        <li class="feature-item included">
+                            <span class="feature-check">✓</span>
+                            Random video chat
+                        </li>
+                        <li class="feature-item included">
+                            <span class="feature-check">✓</span>
+                            Text chat
+                        </li>
+                        <li class="feature-item included">
+                            <span class="feature-check">✓</span>
+                            <strong>Gender filter</strong>
+                            <span class="feature-desc">Choose male, female, or non-binary</span>
+                        </li>
+                        <li class="feature-item included">
+                            <span class="feature-check">✓</span>
+                            <strong>Country filter</strong>
+                            <span class="feature-desc">Connect with specific countries</span>
+                        </li>
+                        <li class="feature-item included">
+                            <span class="feature-check">✓</span>
+                            <strong>Camera controls</strong>
+                            <span class="feature-desc">Toggle on/off during chat</span>
+                        </li>
+                        <li class="feature-item included">
+                            <span class="feature-check">✓</span>
+                            <strong>Mic controls</strong>
+                            <span class="feature-desc">Mute/unmute anytime</span>
+                        </li>
+                        <li class="feature-item included">
+                            <span class="feature-check">✓</span>
+                            Priority matching
+                        </li>
+                        <li class="feature-item included">
+                            <span class="feature-check">✓</span>
+                            No ads
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-footer">
+                    <button id="subscribePremiumBtn" class="btn btn-primary btn-block btn-large">
+                        <span class="btn-icon">👑</span>
+                        Subscribe Now
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="payment-methods">
+            <p>Accepted Payment Methods:</p>
+            <div class="payment-icons">
+                <span class="payment-icon">💳</span>
+                <span class="payment-icon">📱</span>
+                <span class="payment-icon">💵</span>
+                <span class="payment-icon">🏦</span>
+            </div>
+        </div>
+
+        <div class="faq-section">
+            <h3>Frequently Asked Questions</h3>
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <h4>Can I cancel anytime?</h4>
+                    <p>Yes! You can cancel your subscription at any time. No questions asked.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>How do filters work?</h4>
+                    <p>Premium users can set preferred gender and country to match with specific people.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Is it really $0.99/month?</h4>
+                    <p>Yes! Just $0.99 per month for all premium features. No hidden fees.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>How do I pay?</h4>
+                    <p>We accept all major credit cards, PayPal, and mobile payments.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content payment-modal">
+            <span class="close-modal">&times;</span>
+            <h2 style="text-align: center; margin-bottom: 20px;">Complete Your Subscription</h2>
+            
+            <!-- Profile Verification Badge -->
+            <div class="verification-badge">
+                <span class="badge-icon">✓</span>
+                <span>Profile verified</span>
+            </div>
+            
+            <div class="payment-summary">
+                <span>Vyntra.tv Premium</span>
+                <span class="payment-amount">$0.99/month</span>
+            </div>
+            
+            <div class="payment-form">
+                <div class="form-group">
+                    <label>Card Number <span class="required">*</span></label>
+                    <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" class="card-input" maxlength="19" required>
+                    <div class="input-hint">16-digit card number</div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Expiry Date <span class="required">*</span></label>
+                        <input type="text" id="expiryDate" placeholder="MM/YY" maxlength="5" required>
+                        <div class="input-hint">MM/YY</div>
+                    </div>
+                    <div class="form-group">
+                        <label>CVV <span class="required">*</span></label>
+                        <input type="text" id="cvv" placeholder="123" maxlength="3" required>
+                        <div class="input-hint">3-digit code</div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Name on Card <span class="required">*</span></label>
+                    <input type="text" id="cardName" placeholder="John Doe" required>
+                    <div class="input-hint">As it appears on card</div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Billing Country <span class="required">*</span></label>
+                    <select id="cardCountry" required>
+                        <option value="" disabled selected>Select country</option>
+                        <option value="US">🇺🇸 United States</option>
+                        <option value="GB">🇬🇧 United Kingdom</option>
+                        <option value="CA">🇨🇦 Canada</option>
+                        <option value="AU">🇦🇺 Australia</option>
+                        <option value="DE">🇩🇪 Germany</option>
+                        <option value="FR">🇫🇷 France</option>
+                        <option value="JP">🇯🇵 Japan</option>
+                    </select>
+                </div>
+                
+                <div class="terms-checkbox">
+                    <input type="checkbox" id="paymentTerms" checked disabled>
+                    <span class="checkbox-custom"></span>
+                    <span class="checkbox-label">
+                        I agree to the <a href="#">Subscription Terms</a>
+                    </span>
+                </div>
+                
+                <button id="processPaymentBtn" class="btn btn-primary btn-large btn-block">
+                    Pay $0.99 & Subscribe
+                </button>
+                
+                <p class="secure-payment">
+                    <span class="secure-icon">🔒</span>
+                    Secure 256-bit SSL encryption
+                </p>
+                
+                <p class="money-back">
+                    💯 30-day money-back guarantee
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content success-modal">
+            <div class="success-icon">🎉</div>
+            <h2>Welcome to Premium!</h2>
+            <p>Your subscription has been activated successfully.</p>
+            <div class="success-features">
+                <div class="success-feature">✓ Gender Filter</div>
+                <div class="success-feature">✓ Country Filter</div>
+                <div class="success-feature">✓ Camera Controls</div>
+                <div class="success-feature">✓ Mic Controls</div>
+            </div>
+            <div class="subscription-details">
+                <p><strong>Amount:</strong> $0.99</p>
+                <p><strong>Next billing:</strong> <span id="nextBilling"></span></p>
+            </div>
+            <button id="goToChatBtn" class="btn btn-primary btn-large" style="margin-top: 20px;">
+                Start Chatting with Premium
+            </button>
+        </div>
+    </div>
+
+    <script src="subscription.js"></script>
+</body>
+</html>
