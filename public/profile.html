@@ -40,7 +40,7 @@
                                 Choose Avatar
                             </label>
                             <input type="file" id="avatarInput" accept="image/*" hidden>
-                            <p class="avatar-hint">Square image, max 2MB</p>
+                            <p class="avatar-hint">Square image, max 10MB</p>
                         </div>
                     </div>
 
@@ -49,7 +49,7 @@
                             <span class="label-icon">👤</span>
                             Display Name <span class="required">*</span>
                         </label>
-                        <input type="text" id="username" name="username" placeholder="Enter your name" maxlength="20" required>
+                        <input type="text" id="username" name="username" placeholder="Enter your name" maxlength="20" value="ryn__nfz__02" required>
                         <div class="input-hint" id="usernameHint">2-20 characters • <span id="usernameCount">0</span>/20</div>
                     </div>
 
@@ -59,7 +59,7 @@
                                 <span class="label-icon">🎂</span>
                                 Age <span class="required">*</span>
                             </label>
-                            <input type="number" id="age" name="age" min="13" max="100" placeholder="Age" required>
+                            <input type="number" id="age" name="age" min="13" max="100" placeholder="Age" value="19" required>
                             <div class="input-hint">Must be 13+</div>
                         </div>
 
@@ -84,7 +84,7 @@
                             Country <span class="required">*</span>
                         </label>
                         <select id="country" name="country" required>
-                            <option value="" disabled selected>Select your country</option>
+                            <option value="" disabled>Select your country</option>
                             <option value="US">🇺🇸 United States</option>
                             <option value="GB">🇬🇧 United Kingdom</option>
                             <option value="CA">🇨🇦 Canada</option>
@@ -98,7 +98,7 @@
                             <option value="BR">🇧🇷 Brazil</option>
                             <option value="MX">🇲🇽 Mexico</option>
                             <option value="IN">🇮🇳 India</option>
-                            <option value="other">🌐 Other</option>
+                            <option value="other" selected>🌐 Other</option>
                         </select>
                     </div>
 
@@ -109,11 +109,11 @@
 
                 <!-- Step 2: Camera Check -->
                 <div class="form-step" id="step2">
-                    <h3 class="step-title">📹 Camera & Microphone Check</h3>
+                    <h3 class="step-title">📹 Camera Check</h3>
                     
                     <div class="camera-check">
                         <div class="camera-check-header">
-                            <span class="check-icon">📹</span>
+                            <span class="check-icon">📷</span>
                             <span>We need to verify your camera is working</span>
                         </div>
                         <div class="camera-preview">
@@ -129,16 +129,16 @@
                                 <span class="req-icon">🔴</span>
                                 Camera access
                             </div>
-                            <div class="requirement" id="reqMic">
-                                <span class="req-icon">🔴</span>
-                                Microphone access
-                            </div>
                         </div>
                         
                         <button type="button" id="testCameraBtn" class="btn btn-outline btn-large">
-                            <span class="btn-icon">🔍</span>
-                            Test Camera & Microphone
+                            <span class="btn-icon">📷</span>
+                            Test Camera
                         </button>
+                        
+                        <p style="color: #48bb78; margin-top: 15px; text-align: center;">
+                            🎤 Microphone will be enabled automatically when you start chatting
+                        </p>
                     </div>
 
                     <div class="form-navigation">
@@ -185,10 +185,6 @@
                                 <a href="#">Community Guidelines</a>, and <a href="#">Privacy Policy</a>
                             </span>
                         </label>
-                        
-                        <p class="terms-warning" id="termsWarning" style="display: none; color: #f56565; margin-top: 10px;">
-                            ⚠️ You must agree to the terms to continue
-                        </p>
                     </div>
 
                     <div class="form-navigation">
@@ -203,6 +199,7 @@
                 </div>
             </form>
 
+            <!-- Profile Validation -->
             <div class="profile-validation" id="profileValidation">
                 <div class="validation-item" data-required="username">
                     <span class="validation-icon">⚪</span> Display name
@@ -245,51 +242,22 @@
             document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
             document.getElementById(`step${step}`).classList.add('active');
         }
+        
+        // Update character count
+        document.addEventListener('DOMContentLoaded', function() {
+            const usernameInput = document.getElementById('username');
+            const usernameCount = document.getElementById('usernameCount');
+            
+            if (usernameInput && usernameCount) {
+                usernameCount.textContent = usernameInput.value.length;
+                
+                usernameInput.addEventListener('input', function() {
+                    usernameCount.textContent = this.value.length;
+                });
+            }
+        });
     </script>
 
     <script src="profile.js"></script>
-<!-- Step 2: Camera Check -->
-<div class="form-step" id="step2">
-    <h3 class="step-title">📹 Camera Check</h3>
-    
-    <div class="camera-check">
-        <div class="camera-check-header">
-            <span class="check-icon">📷</span>
-            <span>We need to verify your camera is working</span>
-        </div>
-        <div class="camera-preview">
-            <video id="previewVideo" autoplay muted playsinline></video>
-            <div class="camera-placeholder" id="cameraPlaceholder">
-                <span class="placeholder-icon">📷</span>
-                <p>Click "Test Camera" to start</p>
-            </div>
-        </div>
-        
-        <div class="camera-requirements">
-            <div class="requirement" id="reqCamera">
-                <span class="req-icon">🔴</span>
-                Camera access only
-            </div>
-        </div>
-        
-        <button type="button" id="testCameraBtn" class="btn btn-outline btn-large">
-            <span class="btn-icon">📷</span>
-            Test Camera
-        </button>
-        
-        <p class="mic-note" style="color: #48bb78; margin-top: 15px; text-align: center;">
-            🎤 Microphone will be enabled automatically when you start chatting
-        </p>
-    </div>
-
-    <div class="form-navigation">
-        <button type="button" class="btn btn-outline prev-step" onclick="prevStep(1)">
-            ← Back
-        </button>
-        <button type="button" class="btn btn-primary next-step" onclick="nextStep(3)" id="cameraNextBtn" disabled>
-            Next Step →
-        </button>
-    </div>
-</div>
 </body>
 </html>

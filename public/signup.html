@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vyntra.tv - Create Account</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <a href="landing.html" class="back-link-small">← Back</a>
+                <div class="logo">
+                    <h1>vyntra<span>.tv</span></h1>
+                </div>
+                <h2>Create Account</h2>
+                <p>Join the Vyntra community</p>
+            </div>
+
+            <!-- Sign Up Form -->
+            <div class="signup-form">
+                <div class="form-group">
+                    <label for="signupName">Display Name</label>
+                    <input type="text" id="signupName" placeholder="Enter your name" maxlength="20">
+                </div>
+
+                <div class="form-group">
+                    <label for="signupEmail">Email</label>
+                    <input type="email" id="signupEmail" placeholder="Enter your email">
+                </div>
+
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" placeholder="Create a password">
+                </div>
+
+                <div class="form-group">
+                    <label for="signupConfirmPassword">Confirm Password</label>
+                    <input type="password" id="signupConfirmPassword" placeholder="Confirm your password">
+                </div>
+
+                <button id="signupWithEmailBtn" class="btn btn-primary btn-large btn-block">
+                    <span class="btn-icon">✨</span>
+                    Sign Up with Email
+                </button>
+
+                <div class="divider">
+                    <span>or</span>
+                </div>
+
+                <button id="signupWithGoogleBtn" class="btn btn-google btn-large btn-block">
+                    <img src="https://www.google.com/favicon.ico" alt="Google" class="btn-icon-img">
+                    Sign Up with Google
+                </button>
+
+                <div class="switch-auth">
+                    Already have an account? 
+                    <a href="login.html">Sign In</a>
+                </div>
+            </div>
+
+            <div class="admin-note-small">
+                Admin: chapanzisagir@gmail.com
+            </div>
+        </div>
+    </div>
+
+    <script src="firebase-config.js"></script>
+    <script src="signup.js"></script>
+</body>
+</html>

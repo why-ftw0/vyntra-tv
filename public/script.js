@@ -26,24 +26,30 @@ const localGenderBadge = document.getElementById('localGenderBadge');
 const localCountryBadge = document.getElementById('localCountryBadge');
 const remoteGenderBadge = document.getElementById('remoteGenderBadge');
 const remoteCountryBadge = document.getElementById('remoteCountryBadge');
+const filterStatus = document.getElementById('filterStatus');
 
-// Check if user has completed profile
-const userProfile = JSON.parse(localStorage.getItem('vyntra_profile'));
+// ===== VARIABLES GLOBALES (une seule déclaration) =====
+// Check if user is logged in
+let userProfile = JSON.parse(localStorage.getItem('vyntra_profile'));
 
-if (!userProfile || !userProfile.hasCompletedProfile) {
-    window.location.href = 'profile.html';
+if (!userProfile) {
+    window.location.href = 'login.html';
 }
 
-// Check subscription status
+// Check if admin
+let isAdmin = localStorage.getItem('vyntra_is_admin') === 'true';
+
+// Admin has all permissions
+if (isAdmin) {
+    console.log('👑 Admin logged in - all premium features enabled');
+}
+
+// Check subscription status (admin always premium)
 function checkSubscriptionStatus() {
-    const profile = JSON.parse(localStorage.getItem('vyntra_profile'));
+    if (isAdmin) return true; // Admin always premium
+    
     const isPremiumValue = localStorage.getItem('vyntra_premium') === 'true';
     const expiry = localStorage.getItem('vyntra_expiry');
-    
-    if (!profile || !profile.hasCompletedProfile) {
-        localStorage.setItem('vyntra_premium', 'false');
-        return false;
-    }
     
     if (isPremiumValue && expiry) {
         if (new Date() > new Date(expiry)) {
@@ -57,15 +63,22 @@ function checkSubscriptionStatus() {
 }
 
 let isPremium = checkSubscriptionStatus();
+let subscriptionExpiry = localStorage.getItem('vyntra_expiry');
+// ===== FIN DES VARIABLES GLOBALES =====
 
 // Update UI based on premium status
 function updateSubscriptionBadge() {
     if (!subscriptionStatus) return;
     
-    if (isPremium) {
-        subscriptionStatus.textContent = 'Premium';
-        subscriptionStatus.style.background = '#fbbf24';
+    if (isPremium || isAdmin) {
+        subscriptionStatus.textContent = isAdmin ? 'Admin' : 'Premium';
+        subscriptionStatus.style.background = isAdmin ? '#9f7aea' : '#fbbf24';
         if (filterBar) filterBar.style.display = 'flex';
+        
+        // Add admin crown if admin
+        if (isAdmin) {
+            subscriptionStatus.innerHTML = '👑 Admin';
+        }
     } else {
         subscriptionStatus.textContent = 'Free';
         if (filterBar) filterBar.style.display = 'none';
@@ -74,22 +87,13 @@ function updateSubscriptionBadge() {
 
 updateSubscriptionBadge();
 
-// Load user profile
-const userProfileData = JSON.parse(localStorage.getItem('vyntra_profile')) || {
-    username: 'Guest',
-    avatar: 'https://via.placeholder.com/40',
-    gender: 'prefer-not',
-    country: 'US',
-    hasCompletedProfile: false
-};
-
 // Update UI with profile info
-if (headerUsername) headerUsername.textContent = userProfileData.username;
-if (headerAvatar) headerAvatar.src = userProfileData.avatar;
-if (localName) localName.textContent = userProfileData.username;
-if (localAvatar) localAvatar.src = userProfileData.avatar;
-if (localGenderBadge) localGenderBadge.textContent = getGenderEmoji(userProfileData.gender);
-if (localCountryBadge) localCountryBadge.textContent = getCountryFlag(userProfileData.country);
+if (headerUsername) headerUsername.textContent = userProfile?.username || 'User';
+if (headerAvatar) headerAvatar.src = userProfile?.avatar || 'https://via.placeholder.com/40';
+if (localName) localName.textContent = userProfile?.username || 'You';
+if (localAvatar) localAvatar.src = userProfile?.avatar || 'https://via.placeholder.com/24';
+if (localGenderBadge) localGenderBadge.textContent = getGenderEmoji(userProfile?.gender);
+if (localCountryBadge) localCountryBadge.textContent = getCountryFlag(userProfile?.country);
 
 // Filter settings
 let preferredGender = 'all';
@@ -141,12 +145,11 @@ const configuration = {
     ]
 };
 
-// ============== FIXED: Camera Permission Function ==============
+// Initialize camera
 async function initLocalVideo() {
     console.log('Requesting camera permission...');
     
     try {
-        // Request both camera and microphone
         localStream = await navigator.mediaDevices.getUserMedia({ 
             video: true, 
             audio: true
@@ -154,56 +157,45 @@ async function initLocalVideo() {
         
         console.log('Camera and microphone access granted!');
         
-        // Show video in local element
         if (localVideo) {
             localVideo.srcObject = localStream;
         }
         
-        // Hide the permission overlay
         if (cameraPermissionOverlay) {
             cameraPermissionOverlay.style.display = 'none';
         }
         
-        // Enable start button
         if (startBtn) {
             startBtn.disabled = false;
         }
         
-        // Setup camera controls
         setupCameraControls();
-        
-        // Tell server user is ready
-        socket.emit('user-ready', userProfileData);
+        socket.emit('user-ready', userProfile);
         
     } catch (error) {
         console.error('Error accessing media devices:', error);
         
-        // Show user-friendly error message
-        if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-            alert('❌ Camera access denied. Please allow camera access in your browser settings and try again.');
-        } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-            alert('❌ No camera found. Please connect a camera and refresh the page.');
-        } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
-            alert('❌ Your camera is already in use by another application. Close other apps and try again.');
+        if (error.name === 'NotAllowedError') {
+            alert('❌ Camera access denied. Please allow camera access in your browser settings.');
+        } else if (error.name === 'NotFoundError') {
+            alert('❌ No camera found. Please connect a camera.');
         } else {
-            alert('❌ Unable to access camera. Please check your camera and try again.');
+            alert('❌ Unable to access camera. Please try again.');
         }
         
-        // Keep overlay visible so user can try again
         if (cameraPermissionOverlay) {
             cameraPermissionOverlay.style.display = 'flex';
         }
     }
 }
-// ============== END FIX ==============
 
 // Setup camera controls
 function setupCameraControls() {
     if (!toggleVideoBtn) return;
     
-    if (!isPremium) {
+    if (!isPremium && !isAdmin) {
         toggleVideoBtn.style.opacity = '0.5';
-        toggleVideoBtn.title = 'Premium feature (Upgrade to toggle camera)';
+        toggleVideoBtn.title = 'Premium feature';
         
         toggleVideoBtn.addEventListener('click', () => {
             showSubscriptionModal();
@@ -212,7 +204,6 @@ function setupCameraControls() {
         return;
     }
     
-    // Video toggle only
     toggleVideoBtn.addEventListener('click', () => {
         if (localStream) {
             const videoTrack = localStream.getVideoTracks()[0];
@@ -226,54 +217,89 @@ function setupCameraControls() {
     });
 }
 
-// Filter event listeners
-document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        preferredGender = btn.dataset.gender;
-        
-        if (isChatting) {
-            alert('Filters will apply on next match');
-        }
-    });
-});
-
-const countryFilter = document.getElementById('countryFilter');
-if (countryFilter) {
-    countryFilter.addEventListener('change', (e) => {
-        preferredCountry = e.target.value;
-        
-        if (isChatting) {
-            alert('Filters will apply on next match');
-        }
-    });
-}
-
-// Subscription modal
-function showSubscriptionModal() {
-    if (subscriptionModal) {
-        subscriptionModal.style.display = 'block';
+// Enable/disable chat based on connection
+function updateChatState(enabled) {
+    if (messageInput) {
+        messageInput.disabled = !enabled;
+        messageInput.placeholder = enabled ? "Type a message..." : "Connect to start chatting";
+    }
+    if (sendBtn) {
+        sendBtn.disabled = !enabled;
     }
 }
 
-const closeModal = document.querySelector('.close-modal');
-if (closeModal) {
-    closeModal.addEventListener('click', () => {
-        if (subscriptionModal) subscriptionModal.style.display = 'none';
-    });
+// Send message function
+function sendMessage() {
+    if (!messageInput) return;
+    
+    const message = messageInput.value.trim();
+    
+    if (message && isChatting) {
+        console.log('Sending message:', message);
+        
+        // Emit to server
+        socket.emit('message', message);
+        
+        // Display in own chat
+        displayMessage(message, 'me');
+        
+        // Clear input
+        messageInput.value = '';
+    } else if (!isChatting) {
+        alert('You need to be connected to send messages');
+    }
 }
 
-window.addEventListener('click', (e) => {
-    if (e.target === subscriptionModal) {
-        subscriptionModal.style.display = 'none';
+// Display message in chat
+function displayMessage(message, sender) {
+    if (!messagesDiv) return;
+    
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message');
+    
+    const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    if (sender === 'me') {
+        messageElement.classList.add('own');
+        messageElement.innerHTML = `
+            <div class="message-sender">You</div>
+            <div class="message-text">${escapeHtml(message)}</div>
+            <div class="message-time">${timestamp}</div>
+        `;
+    } else if (sender === 'system') {
+        messageElement.classList.add('system');
+        messageElement.innerHTML = `<div class="message-text">${message}</div>`;
+    } else {
+        const strangerName = remoteName ? remoteName.textContent : 'Stranger';
+        messageElement.innerHTML = `
+            <div class="message-sender">${escapeHtml(strangerName)}</div>
+            <div class="message-text">${escapeHtml(message)}</div>
+            <div class="message-time">${timestamp}</div>
+        `;
     }
-});
+    
+    messagesDiv.appendChild(messageElement);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
 
-const subscribeNowBtn = document.getElementById('subscribeNowBtn');
-if (subscribeNowBtn) {
-    subscribeNowBtn.addEventListener('click', () => {
-        window.location.href = 'subscription.html';
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Message event listener
+if (sendBtn) {
+    sendBtn.addEventListener('click', sendMessage);
+}
+
+if (messageInput) {
+    messageInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            sendMessage();
+        }
     });
 }
 
@@ -298,13 +324,13 @@ function createPeerConnection() {
     };
     
     peerConnection.oniceconnectionstatechange = () => {
-        console.log('ICE connection state:', peerConnection.iceConnectionState);
         if (peerConnection.iceConnectionState === 'connected') {
             if (waitingOverlay) waitingOverlay.style.display = 'none';
             if (chatStatus) {
                 chatStatus.textContent = 'Connected';
                 chatStatus.style.background = '#48bb78';
             }
+            updateChatState(true);
         }
     };
 }
@@ -364,6 +390,7 @@ socket.on('stranger-disconnected', () => {
     displayMessage('Stranger disconnected', 'system');
     stopChatting();
     if (waitingOverlay) waitingOverlay.style.display = 'flex';
+    updateChatState(false);
 });
 
 // UI functions
@@ -371,8 +398,6 @@ function updateUIState() {
     if (startBtn) startBtn.disabled = isChatting;
     if (nextBtn) nextBtn.disabled = !isChatting;
     if (stopBtn) stopBtn.disabled = !isChatting;
-    if (messageInput) messageInput.disabled = !isChatting;
-    if (sendBtn) sendBtn.disabled = !isChatting;
     
     if (chatStatus) {
         if (isChatting) {
@@ -383,30 +408,8 @@ function updateUIState() {
             chatStatus.style.background = 'rgba(255,255,255,0.2)';
         }
     }
-}
-
-function displayMessage(message, sender) {
-    if (!messagesDiv) return;
     
-    const messageElement = document.createElement('div');
-    messageElement.classList.add('message');
-    
-    if (sender === 'me') {
-        messageElement.classList.add('own');
-        messageElement.textContent = message;
-    } else if (sender === 'system') {
-        messageElement.style.background = '#ffd700';
-        messageElement.style.color = '#333';
-        messageElement.style.textAlign = 'center';
-        messageElement.style.margin = '10px auto';
-        messageElement.textContent = message;
-    } else {
-        const strangerName = remoteName ? remoteName.textContent : 'Stranger';
-        messageElement.innerHTML = `<strong>${strangerName}:</strong> ${message}`;
-    }
-    
-    messagesDiv.appendChild(messageElement);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    updateChatState(isChatting);
 }
 
 function stopChatting() {
@@ -423,36 +426,50 @@ function stopChatting() {
     if (remoteCountryBadge) remoteCountryBadge.textContent = '';
 }
 
-// ============== FIXED: Event Listeners ==============
-// Make sure the button click works
+// Subscription modal
+function showSubscriptionModal() {
+    if (subscriptionModal) {
+        subscriptionModal.style.display = 'block';
+    }
+}
+
+const closeModal = document.querySelector('.close-modal');
+if (closeModal) {
+    closeModal.addEventListener('click', () => {
+        if (subscriptionModal) subscriptionModal.style.display = 'none';
+    });
+}
+
+window.addEventListener('click', (e) => {
+    if (e.target === subscriptionModal) {
+        subscriptionModal.style.display = 'none';
+    }
+});
+
+const subscribeNowBtn = document.getElementById('subscribeNowBtn');
+if (subscribeNowBtn) {
+    subscribeNowBtn.addEventListener('click', () => {
+        window.location.href = 'subscription.html';
+    });
+}
+
+// Event listeners
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Page loaded, setting up event listeners...');
+    console.log('Page loaded');
     
-    // Get the permission button
     const requestPermissionBtn = document.getElementById('requestPermissionBtn');
-    
     if (requestPermissionBtn) {
-        console.log('Found permission button, adding click listener');
-        
-        // Remove any existing listeners and add new one
-        requestPermissionBtn.onclick = function(e) {
-            e.preventDefault();
-            console.log('Enable Camera button clicked!');
-            initLocalVideo();
-        };
-    } else {
-        console.error('Permission button not found! Check ID in HTML');
+        requestPermissionBtn.addEventListener('click', initLocalVideo);
     }
     
-    // Other event listeners
     if (startBtn) {
         startBtn.addEventListener('click', () => {
-            const filters = isPremium ? {
+            const filters = isPremium || isAdmin ? {
                 gender: preferredGender,
                 country: preferredCountry
             } : null;
             
-            socket.emit('find-stranger', userProfileData, filters);
+            socket.emit('find-stranger', userProfile, filters);
             startBtn.disabled = true;
             if (waitingOverlay) waitingOverlay.style.display = 'flex';
             
@@ -477,27 +494,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (waitingOverlay) waitingOverlay.style.display = 'none';
         });
     }
-
-    if (sendBtn) {
-        sendBtn.addEventListener('click', () => {
-            const message = messageInput.value.trim();
-            if (message) {
-                socket.emit('message', message);
-                displayMessage(message, 'me');
-                messageInput.value = '';
-            }
-        });
-    }
-
-    if (messageInput) {
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && sendBtn) {
-                sendBtn.click();
-            }
-        });
-    }
 });
-// ============== END FIX ==============
 
-// Initialize UI state
+// Initialize
 updateUIState();
+updateChatState(false);

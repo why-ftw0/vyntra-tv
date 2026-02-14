@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vyntra.tv - Sign In</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <a href="landing.html" class="back-link-small">← Back</a>
+                <div class="logo">
+                    <h1>vyntra<span>.tv</span></h1>
+                </div>
+                <h2>Welcome Back</h2>
+                <p>Sign in to start video chatting</p>
+            </div>
+
+            <!-- Admin Notice -->
+            <div class="admin-notice" id="adminNotice" style="display: none;">
+                <span class="admin-icon">👑</span>
+                <span>Admin account detected! Premium automatically enabled.</span>
+            </div>
+
+            <!-- Login Methods -->
+            <div class="login-methods">
+                <!-- Google Sign-In -->
+                <button id="googleSignInBtn" class="btn btn-google btn-large btn-block">
+                    <img src="https://www.google.com/favicon.ico" alt="Google" class="btn-icon-img">
+                    Continue with Google
+                </button>
+
+                <div class="divider">
+                    <span>or</span>
+                </div>
+
+                <!-- Email Sign-In -->
+                <div class="email-signin">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" placeholder="Enter your email">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" placeholder="Enter your password">
+                    </div>
+
+                    <button id="loginWithEmailBtn" class="btn btn-outline btn-large btn-block">
+                        Sign In with Email
+                    </button>
+                </div>
+
+                <div class="divider">
+                    <span>or</span>
+                </div>
+
+                <!-- Phone Sign-In -->
+                <div class="phone-signin">
+                    <div class="form-group">
+                        <label for="phoneNumber">Phone Number</label>
+                        <div class="phone-input-group">
+                            <select id="countryCode" class="country-code">
+                                <option value="+1">🇺🇸 +1</option>
+                                <option value="+44">🇬🇧 +44</option>
+                                <option value="+33">🇫🇷 +33</option>
+                                <option value="+49">🇩🇪 +49</option>
+                                <option value="+81">🇯🇵 +81</option>
+                                <option value="+91">🇮🇳 +91</option>
+                                <option value="+213" selected>🇩🇿 +213</option>
+                            </select>
+                            <input type="tel" id="phoneNumber" placeholder="Phone number" class="phone-input" value="21731682">
+                        </div>
+                    </div>
+                    
+                    <div class="verification-code" id="verificationCodeSection" style="display: none;">
+                        <div class="form-group">
+                            <label>Verification Code</label>
+                            <div class="code-input-group">
+                                <input type="text" id="verificationCode" placeholder="Enter 6-digit code" maxlength="6">
+                                <button id="verifyCodeBtn" class="btn btn-primary">Verify</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="sendCodeBtn" class="btn btn-outline btn-large btn-block">
+                        <span class="btn-icon">📱</span>
+                        Send Code via SMS
+                    </button>
+                </div>
+
+                <div class="switch-auth">
+                    Don't have an account? 
+                    <a href="signup.html">Create Account</a>
+                </div>
+            </div>
+
+            <div class="admin-note-small">
+                Admin: chapanzisagir@gmail.com (auto-premium)
+            </div>
+        </div>
+    </div>
+
+    <script src="firebase-config.js"></script>
+    <script src="login.js"></script>
+</body>
+</html>

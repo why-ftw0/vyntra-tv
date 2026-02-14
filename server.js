@@ -12,7 +12,12 @@ const PORT = process.env.PORT || 3000;
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Store waiting users with their profiles and filters
+// Redirect root to landing page
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'landing.html'));
+});
+
+// Store waiting users
 let waitingUsers = [];
 
 io.on('connection', (socket) => {
@@ -28,29 +33,13 @@ io.on('connection', (socket) => {
         userProfile = profile;
         userFilters = filters;
         
-        // Find matching user based on filters
+        // Find matching user
         let matchedPartner = null;
         let matchIndex = -1;
         
         for (let i = 0; i < waitingUsers.length; i++) {
             const waitingUser = waitingUsers[i];
             
-            // Check if waiting user has filters
-            if (waitingUser.userFilters) {
-                // Check if waiting user wants to match with this user's gender
-                if (waitingUser.userFilters.gender !== 'all' && 
-                    waitingUser.userFilters.gender !== userProfile.gender) {
-                    continue;
-                }
-                
-                // Check if waiting user wants to match with this user's country
-                if (waitingUser.userFilters.country !== 'all' && 
-                    waitingUser.userFilters.country !== userProfile.country) {
-                    continue;
-                }
-            }
-            
-            // Check if current user has filters
             if (filters) {
                 if (filters.gender !== 'all' && filters.gender !== waitingUser.userProfile.gender) {
                     continue;
@@ -60,25 +49,20 @@ io.on('connection', (socket) => {
                 }
             }
             
-            // Found a match
             matchedPartner = waitingUser;
             matchIndex = i;
             break;
         }
         
         if (matchedPartner) {
-            // Remove matched user from waiting list
             waitingUsers.splice(matchIndex, 1);
             
-            // Connect the two users
             socket.partner = matchedPartner;
             matchedPartner.partner = socket;
             
-            // Notify both users
             socket.emit('matched', matchedPartner.userProfile);
             matchedPartner.emit('matched', userProfile);
         } else {
-            // Add to waiting queue
             waitingUsers.push(socket);
         }
     });
@@ -90,7 +74,6 @@ io.on('connection', (socket) => {
             socket.partner = null;
         }
         
-        // Look for new partner with filters
         if (waitingUsers.length > 0) {
             let matchedPartner = null;
             let matchIndex = -1;
@@ -99,12 +82,10 @@ io.on('connection', (socket) => {
                 const waitingUser = waitingUsers[i];
                 
                 if (userFilters) {
-                    if (userFilters.gender !== 'all' && 
-                        userFilters.gender !== waitingUser.userProfile.gender) {
+                    if (userFilters.gender !== 'all' && userFilters.gender !== waitingUser.userProfile.gender) {
                         continue;
                     }
-                    if (userFilters.country !== 'all' && 
-                        userFilters.country !== waitingUser.userProfile.country) {
+                    if (userFilters.country !== 'all' && userFilters.country !== waitingUser.userProfile.country) {
                         continue;
                     }
                 }
@@ -137,7 +118,6 @@ io.on('connection', (socket) => {
         }
     });
     
-    // WebRTC signaling
     socket.on('offer', (offer) => {
         if (socket.partner) {
             socket.partner.emit('offer', offer, userProfile);
@@ -165,10 +145,8 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log('User disconnected:', socket.id);
         
-        // Remove from waiting list
         waitingUsers = waitingUsers.filter(user => user !== socket);
         
-        // Notify partner
         if (socket.partner) {
             socket.partner.emit('stranger-disconnected');
             socket.partner.partner = null;
@@ -178,4 +156,5 @@ io.on('connection', (socket) => {
 
 server.listen(PORT, () => {
     console.log(`Vyntra.tv server running on port ${PORT}`);
+    console.log(`👉 Open http://localhost:${PORT}`);
 });
