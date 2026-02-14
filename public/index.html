@@ -2,10 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Vyntra.tv - Random Video Chat</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 </head>
 <body>
     <div class="container">
@@ -21,6 +26,7 @@
                     <span class="crown">👑</span>
                     <span id="subscriptionStatus">Free</span>
                 </button>
+                <button id="logoutBtn" class="logout-btn" title="Logout">🚪</button>
             </div>
         </header>
 
@@ -75,7 +81,7 @@
                         <span id="localCountryBadge" class="country-badge"></span>
                     </div>
                     
-                    <!-- ===== ONLY ONE CAMERA PERMISSION OVERLAY ===== -->
+                    <!-- Camera Permission Overlay -->
                     <div class="camera-permission-overlay" id="cameraPermissionOverlay">
                         <div class="permission-content">
                             <div class="camera-icon">📷</div>
@@ -93,7 +99,6 @@
                             </p>
                         </div>
                     </div>
-                    <!-- ===== END OF CAMERA PERMISSION OVERLAY ===== -->
                     
                     <!-- Camera Controls -->
                     <div class="camera-controls">
@@ -202,7 +207,7 @@
         </div>
     </div>
 
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="firebase-config.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

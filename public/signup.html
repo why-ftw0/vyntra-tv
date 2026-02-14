@@ -6,9 +6,9 @@
     <title>Vyntra.tv - Create Account</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <!-- Firebase SDK (version correcte) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 </head>
 <body class="login-page">
     <div class="login-container">
@@ -26,12 +26,12 @@
             <div class="signup-form">
                 <div class="form-group">
                     <label for="signupName">Display Name</label>
-                    <input type="text" id="signupName" placeholder="Enter your name" maxlength="20">
+                    <input type="text" id="signupName" placeholder="Enter your name" maxlength="20" value="rayen nefzi">
                 </div>
 
                 <div class="form-group">
                     <label for="signupEmail">Email</label>
-                    <input type="email" id="signupEmail" placeholder="Enter your email">
+                    <input type="email" id="signupEmail" placeholder="Enter your email" value="chapanzisagir@gmail.com">
                 </div>
 
                 <div class="form-group">
@@ -62,10 +62,6 @@
                     Already have an account? 
                     <a href="login.html">Sign In</a>
                 </div>
-            </div>
-
-            <div class="admin-note-small">
-                Admin: chapanzisagir@gmail.com
             </div>
         </div>
     </div>

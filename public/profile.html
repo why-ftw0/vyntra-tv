@@ -6,11 +6,15 @@
     <title>Vyntra.tv - Create Your Profile</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 </head>
 <body class="profile-page">
     <div class="profile-container">
         <div class="profile-card">
             <div class="profile-header">
+                <a href="index.html" class="back-link-small">← Back to Chat</a>
                 <div class="logo">
                     <h1>vyntra<span>.tv</span></h1>
                 </div>
@@ -40,7 +44,7 @@
                                 Choose Avatar
                             </label>
                             <input type="file" id="avatarInput" accept="image/*" hidden>
-                            <p class="avatar-hint">Square image, max 10MB</p>
+                            <p class="avatar-hint">Square image, max 2MB</p>
                         </div>
                     </div>
 
@@ -49,8 +53,8 @@
                             <span class="label-icon">👤</span>
                             Display Name <span class="required">*</span>
                         </label>
-                        <input type="text" id="username" name="username" placeholder="Enter your name" maxlength="20" value="ryn__nfz__02" required>
-                        <div class="input-hint" id="usernameHint">2-20 characters • <span id="usernameCount">0</span>/20</div>
+                        <input type="text" id="username" name="username" placeholder="Enter your name" maxlength="20" required>
+                        <div class="input-hint">2-20 characters</div>
                     </div>
 
                     <div class="form-row">
@@ -59,7 +63,7 @@
                                 <span class="label-icon">🎂</span>
                                 Age <span class="required">*</span>
                             </label>
-                            <input type="number" id="age" name="age" min="13" max="100" placeholder="Age" value="19" required>
+                            <input type="number" id="age" name="age" min="13" max="100" placeholder="Age" required>
                             <div class="input-hint">Must be 13+</div>
                         </div>
 
@@ -84,7 +88,7 @@
                             Country <span class="required">*</span>
                         </label>
                         <select id="country" name="country" required>
-                            <option value="" disabled>Select your country</option>
+                            <option value="" disabled selected>Select your country</option>
                             <option value="US">🇺🇸 United States</option>
                             <option value="GB">🇬🇧 United Kingdom</option>
                             <option value="CA">🇨🇦 Canada</option>
@@ -98,7 +102,7 @@
                             <option value="BR">🇧🇷 Brazil</option>
                             <option value="MX">🇲🇽 Mexico</option>
                             <option value="IN">🇮🇳 India</option>
-                            <option value="other" selected>🌐 Other</option>
+                            <option value="other">🌐 Other</option>
                         </select>
                     </div>
 
@@ -242,22 +246,9 @@
             document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
             document.getElementById(`step${step}`).classList.add('active');
         }
-        
-        // Update character count
-        document.addEventListener('DOMContentLoaded', function() {
-            const usernameInput = document.getElementById('username');
-            const usernameCount = document.getElementById('usernameCount');
-            
-            if (usernameInput && usernameCount) {
-                usernameCount.textContent = usernameInput.value.length;
-                
-                usernameInput.addEventListener('input', function() {
-                    usernameCount.textContent = this.value.length;
-                });
-            }
-        });
     </script>
 
+    <script src="firebase-config.js"></script>
     <script src="profile.js"></script>
 </body>
 </html>

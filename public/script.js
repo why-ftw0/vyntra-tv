@@ -1,6 +1,6 @@
 const socket = io();
 
-// DOM elements
+// ===== DOM ELEMENTS =====
 const localVideo = document.getElementById('localVideo');
 const remoteVideo = document.getElementById('remoteVideo');
 const startBtn = document.getElementById('startBtn');
@@ -27,87 +27,21 @@ const localCountryBadge = document.getElementById('localCountryBadge');
 const remoteGenderBadge = document.getElementById('remoteGenderBadge');
 const remoteCountryBadge = document.getElementById('remoteCountryBadge');
 const filterStatus = document.getElementById('filterStatus');
+const logoutBtn = document.getElementById('logoutBtn');
 
-// ===== VARIABLES GLOBALES (une seule déclaration) =====
-// Check if user is logged in
-let userProfile = JSON.parse(localStorage.getItem('vyntra_profile'));
-
-if (!userProfile) {
-    window.location.href = 'login.html';
-}
-
-// Check if admin
-let isAdmin = localStorage.getItem('vyntra_is_admin') === 'true';
-
-// Admin has all permissions
-if (isAdmin) {
-    console.log('👑 Admin logged in - all premium features enabled');
-}
-
-// Check subscription status (admin always premium)
-function checkSubscriptionStatus() {
-    if (isAdmin) return true; // Admin always premium
-    
-    const isPremiumValue = localStorage.getItem('vyntra_premium') === 'true';
-    const expiry = localStorage.getItem('vyntra_expiry');
-    
-    if (isPremiumValue && expiry) {
-        if (new Date() > new Date(expiry)) {
-            localStorage.setItem('vyntra_premium', 'false');
-            return false;
-        }
-        return true;
-    }
-    
-    return false;
-}
-
-let isPremium = checkSubscriptionStatus();
-let subscriptionExpiry = localStorage.getItem('vyntra_expiry');
-// ===== FIN DES VARIABLES GLOBALES =====
-
-// Update UI based on premium status
-function updateSubscriptionBadge() {
-    if (!subscriptionStatus) return;
-    
-    if (isPremium || isAdmin) {
-        subscriptionStatus.textContent = isAdmin ? 'Admin' : 'Premium';
-        subscriptionStatus.style.background = isAdmin ? '#9f7aea' : '#fbbf24';
-        if (filterBar) filterBar.style.display = 'flex';
-        
-        // Add admin crown if admin
-        if (isAdmin) {
-            subscriptionStatus.innerHTML = '👑 Admin';
-        }
-    } else {
-        subscriptionStatus.textContent = 'Free';
-        if (filterBar) filterBar.style.display = 'none';
-    }
-}
-
-updateSubscriptionBadge();
-
-// Update UI with profile info
-if (headerUsername) headerUsername.textContent = userProfile?.username || 'User';
-if (headerAvatar) headerAvatar.src = userProfile?.avatar || 'https://via.placeholder.com/40';
-if (localName) localName.textContent = userProfile?.username || 'You';
-if (localAvatar) localAvatar.src = userProfile?.avatar || 'https://via.placeholder.com/24';
-if (localGenderBadge) localGenderBadge.textContent = getGenderEmoji(userProfile?.gender);
-if (localCountryBadge) localCountryBadge.textContent = getCountryFlag(userProfile?.country);
-
-// Filter settings
-let preferredGender = 'all';
-let preferredCountry = 'all';
-
-// Camera state
-let isVideoEnabled = true;
-
-// WebRTC variables
+// ===== GLOBAL VARIABLES (DECLARED ONCE) =====
 let localStream;
 let peerConnection;
 let isChatting = false;
+let isVideoEnabled = true;
+let preferredGender = 'all';
+let preferredCountry = 'all';
+let userProfile = null;
+let isAdmin = false;
+let isPremium = false;
+let subscriptionExpiry = null;
 
-// Helper functions
+// ===== HELPER FUNCTIONS =====
 function getGenderEmoji(gender) {
     const emojis = {
         'male': '♂️',
@@ -137,7 +71,90 @@ function getCountryFlag(countryCode) {
     return flags[countryCode] || '🌐';
 }
 
-// STUN servers
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// ===== CHECK USER LOGIN =====
+function checkUserLoggedIn() {
+    const storedProfile = JSON.parse(localStorage.getItem('vyntra_profile'));
+    
+    if (!storedProfile) {
+        console.log('No profile found, redirecting to login');
+        window.location.href = 'login.html';
+        return null;
+    }
+    
+    return storedProfile;
+}
+
+// Initialize user profile
+userProfile = checkUserLoggedIn();
+if (!userProfile) {
+    throw new Error('No user logged in');
+}
+
+// Check if admin
+isAdmin = localStorage.getItem('vyntra_is_admin') === 'true';
+
+if (isAdmin) {
+    console.log('👑 Admin logged in - all premium features enabled');
+}
+
+// Check subscription status
+function checkSubscriptionStatus() {
+    if (isAdmin) return true;
+    
+    const isPremiumValue = localStorage.getItem('vyntra_premium') === 'true';
+    const expiry = localStorage.getItem('vyntra_expiry');
+    
+    if (isPremiumValue && expiry) {
+        if (new Date() > new Date(expiry)) {
+            localStorage.setItem('vyntra_premium', 'false');
+            return false;
+        }
+        return true;
+    }
+    
+    return false;
+}
+
+isPremium = checkSubscriptionStatus();
+subscriptionExpiry = localStorage.getItem('vyntra_expiry');
+
+// ===== UPDATE UI WITH PROFILE =====
+function updateSubscriptionBadge() {
+    if (!subscriptionStatus) return;
+    
+    if (isPremium || isAdmin) {
+        subscriptionStatus.textContent = isAdmin ? 'Admin' : 'Premium';
+        subscriptionStatus.style.background = isAdmin ? '#9f7aea' : '#fbbf24';
+        if (filterBar) filterBar.style.display = 'flex';
+        
+        if (isAdmin) {
+            subscriptionStatus.innerHTML = '👑 Admin';
+        }
+    } else {
+        subscriptionStatus.textContent = 'Free';
+        if (filterBar) filterBar.style.display = 'none';
+    }
+}
+
+function updateUIWithProfile() {
+    if (headerUsername) headerUsername.textContent = userProfile?.username || 'User';
+    if (headerAvatar) headerAvatar.src = userProfile?.avatar || 'https://via.placeholder.com/40';
+    if (localName) localName.textContent = userProfile?.username || 'You';
+    if (localAvatar) localAvatar.src = userProfile?.avatar || 'https://via.placeholder.com/24';
+    if (localGenderBadge) localGenderBadge.textContent = getGenderEmoji(userProfile?.gender);
+    if (localCountryBadge) localCountryBadge.textContent = getCountryFlag(userProfile?.country);
+}
+
+updateSubscriptionBadge();
+updateUIWithProfile();
+
+// ===== STUN SERVERS =====
 const configuration = {
     iceServers: [
         { urls: 'stun:stun.l.google.com:19302' },
@@ -145,7 +162,7 @@ const configuration = {
     ]
 };
 
-// Initialize camera
+// ===== CAMERA FUNCTIONS =====
 async function initLocalVideo() {
     console.log('Requesting camera permission...');
     
@@ -175,13 +192,17 @@ async function initLocalVideo() {
     } catch (error) {
         console.error('Error accessing media devices:', error);
         
+        let errorMessage = '❌ Unable to access camera. ';
+        
         if (error.name === 'NotAllowedError') {
-            alert('❌ Camera access denied. Please allow camera access in your browser settings.');
+            errorMessage = '❌ Camera access denied. Please allow camera access in your browser settings.';
         } else if (error.name === 'NotFoundError') {
-            alert('❌ No camera found. Please connect a camera.');
+            errorMessage = '❌ No camera found. Please connect a camera.';
         } else {
-            alert('❌ Unable to access camera. Please try again.');
+            errorMessage = '❌ Unable to access camera. Please try again.';
         }
+        
+        alert(errorMessage);
         
         if (cameraPermissionOverlay) {
             cameraPermissionOverlay.style.display = 'flex';
@@ -189,7 +210,6 @@ async function initLocalVideo() {
     }
 }
 
-// Setup camera controls
 function setupCameraControls() {
     if (!toggleVideoBtn) return;
     
@@ -217,7 +237,7 @@ function setupCameraControls() {
     });
 }
 
-// Enable/disable chat based on connection
+// ===== CHAT FUNCTIONS =====
 function updateChatState(enabled) {
     if (messageInput) {
         messageInput.disabled = !enabled;
@@ -228,7 +248,6 @@ function updateChatState(enabled) {
     }
 }
 
-// Send message function
 function sendMessage() {
     if (!messageInput) return;
     
@@ -237,20 +256,14 @@ function sendMessage() {
     if (message && isChatting) {
         console.log('Sending message:', message);
         
-        // Emit to server
         socket.emit('message', message);
-        
-        // Display in own chat
         displayMessage(message, 'me');
-        
-        // Clear input
         messageInput.value = '';
     } else if (!isChatting) {
         alert('You need to be connected to send messages');
     }
 }
 
-// Display message in chat
 function displayMessage(message, sender) {
     if (!messagesDiv) return;
     
@@ -282,28 +295,7 @@ function displayMessage(message, sender) {
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
-// Escape HTML to prevent XSS
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-// Message event listener
-if (sendBtn) {
-    sendBtn.addEventListener('click', sendMessage);
-}
-
-if (messageInput) {
-    messageInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            sendMessage();
-        }
-    });
-}
-
-// Create peer connection
+// ===== PEER CONNECTION =====
 function createPeerConnection() {
     peerConnection = new RTCPeerConnection(configuration);
     
@@ -335,7 +327,97 @@ function createPeerConnection() {
     };
 }
 
-// Socket event handlers
+// ===== UI FUNCTIONS =====
+function updateUIState() {
+    if (startBtn) startBtn.disabled = isChatting;
+    if (nextBtn) nextBtn.disabled = !isChatting;
+    if (stopBtn) stopBtn.disabled = !isChatting;
+    
+    if (chatStatus) {
+        if (isChatting) {
+            chatStatus.textContent = 'Connected';
+            chatStatus.style.background = '#48bb78';
+        } else {
+            chatStatus.textContent = 'Offline';
+            chatStatus.style.background = 'rgba(255,255,255,0.2)';
+        }
+    }
+    
+    updateChatState(isChatting);
+}
+
+function stopChatting() {
+    if (peerConnection) {
+        peerConnection.close();
+        peerConnection = null;
+    }
+    if (remoteVideo) remoteVideo.srcObject = null;
+    isChatting = false;
+    updateUIState();
+    if (remoteName) remoteName.textContent = 'Stranger';
+    if (remoteAvatar) remoteAvatar.src = 'https://via.placeholder.com/24';
+    if (remoteGenderBadge) remoteGenderBadge.textContent = '';
+    if (remoteCountryBadge) remoteCountryBadge.textContent = '';
+}
+
+// ===== SUBSCRIPTION MODAL =====
+function showSubscriptionModal() {
+    if (subscriptionModal) {
+        subscriptionModal.style.display = 'block';
+    }
+}
+
+const closeModal = document.querySelector('.close-modal');
+if (closeModal) {
+    closeModal.addEventListener('click', () => {
+        if (subscriptionModal) subscriptionModal.style.display = 'none';
+    });
+}
+
+window.addEventListener('click', (e) => {
+    if (e.target === subscriptionModal) {
+        subscriptionModal.style.display = 'none';
+    }
+});
+
+const subscribeNowBtn = document.getElementById('subscribeNowBtn');
+if (subscribeNowBtn) {
+    subscribeNowBtn.addEventListener('click', () => {
+        window.location.href = 'subscription.html';
+    });
+}
+
+// ===== LOGOUT FUNCTION =====
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', function() {
+        if (confirm('Are you sure you want to logout?')) {
+            // Stop any ongoing chat
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
+            
+            // Sign out from Firebase
+            firebase.auth().signOut().then(function() {
+                console.log('User signed out successfully');
+                
+                // Clear all localStorage data
+                localStorage.clear();
+                
+                // Redirect to landing page
+                window.location.href = 'landing.html';
+                
+            }).catch(function(error) {
+                console.error('Error signing out:', error);
+                
+                // Even if Firebase fails, clear local data and redirect
+                localStorage.clear();
+                window.location.href = 'landing.html';
+            });
+        }
+    });
+}
+
+// ===== SOCKET EVENT HANDLERS =====
 socket.on('matched', (strangerProfile) => {
     console.log('Matched with a stranger!');
     isChatting = true;
@@ -393,67 +475,7 @@ socket.on('stranger-disconnected', () => {
     updateChatState(false);
 });
 
-// UI functions
-function updateUIState() {
-    if (startBtn) startBtn.disabled = isChatting;
-    if (nextBtn) nextBtn.disabled = !isChatting;
-    if (stopBtn) stopBtn.disabled = !isChatting;
-    
-    if (chatStatus) {
-        if (isChatting) {
-            chatStatus.textContent = 'Connected';
-            chatStatus.style.background = '#48bb78';
-        } else {
-            chatStatus.textContent = 'Offline';
-            chatStatus.style.background = 'rgba(255,255,255,0.2)';
-        }
-    }
-    
-    updateChatState(isChatting);
-}
-
-function stopChatting() {
-    if (peerConnection) {
-        peerConnection.close();
-        peerConnection = null;
-    }
-    if (remoteVideo) remoteVideo.srcObject = null;
-    isChatting = false;
-    updateUIState();
-    if (remoteName) remoteName.textContent = 'Stranger';
-    if (remoteAvatar) remoteAvatar.src = 'https://via.placeholder.com/24';
-    if (remoteGenderBadge) remoteGenderBadge.textContent = '';
-    if (remoteCountryBadge) remoteCountryBadge.textContent = '';
-}
-
-// Subscription modal
-function showSubscriptionModal() {
-    if (subscriptionModal) {
-        subscriptionModal.style.display = 'block';
-    }
-}
-
-const closeModal = document.querySelector('.close-modal');
-if (closeModal) {
-    closeModal.addEventListener('click', () => {
-        if (subscriptionModal) subscriptionModal.style.display = 'none';
-    });
-}
-
-window.addEventListener('click', (e) => {
-    if (e.target === subscriptionModal) {
-        subscriptionModal.style.display = 'none';
-    }
-});
-
-const subscribeNowBtn = document.getElementById('subscribeNowBtn');
-if (subscribeNowBtn) {
-    subscribeNowBtn.addEventListener('click', () => {
-        window.location.href = 'subscription.html';
-    });
-}
-
-// Event listeners
+// ===== EVENT LISTENERS =====
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Page loaded');
     
@@ -494,8 +516,45 @@ document.addEventListener('DOMContentLoaded', function() {
             if (waitingOverlay) waitingOverlay.style.display = 'none';
         });
     }
+
+    if (sendBtn) {
+        sendBtn.addEventListener('click', sendMessage);
+    }
+
+    if (messageInput) {
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    }
+    
+    // Filter event listeners
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            preferredGender = btn.dataset.gender;
+            
+            if (isChatting) {
+                alert('Filters will apply on next match');
+            }
+        });
+    });
+
+    const countryFilter = document.getElementById('countryFilter');
+    if (countryFilter) {
+        countryFilter.addEventListener('change', (e) => {
+            preferredCountry = e.target.value;
+            
+            if (isChatting) {
+                alert('Filters will apply on next match');
+            }
+        });
+    }
 });
 
-// Initialize
+// ===== INITIALIZE =====
 updateUIState();
 updateChatState(false);

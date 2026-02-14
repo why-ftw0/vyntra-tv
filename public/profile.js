@@ -233,3 +233,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+// ===== LOGOUT BUTTON IN PROFILE =====
+const logoutBtn = document.getElementById('logoutBtn');
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', function() {
+        if (confirm('Are you sure you want to logout?')) {
+            // Stop camera if it's on
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
+            
+            firebase.auth().signOut().then(function() {
+                localStorage.clear();
+                window.location.href = 'landing.html';
+            }).catch(function() {
+                localStorage.clear();
+                window.location.href = 'landing.html';
+            });
+        }
+    });
+}

@@ -1,5 +1,6 @@
 // Wait for Firebase to load
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Signup page loaded');
     
     // DOM Elements
     const signupWithGoogleBtn = document.getElementById('signupWithGoogleBtn');
@@ -13,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ADMIN_EMAILS = ['chapanzisagir@gmail.com'];
     
     // Check if user is already logged in
-    firebase.auth().onAuthStateChanged((user) => {
+    firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
             console.log('User logged in:', user);
             
@@ -25,11 +26,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 uid: user.uid,
                 username: user.displayName || user.email?.split('@')[0] || 'User',
                 email: user.email,
-                phoneNumber: user.phoneNumber,
                 avatar: user.photoURL || 'https://via.placeholder.com/120',
                 isAdmin: isAdminUser,
                 hasCompletedProfile: true,
-                loginMethod: user.providerData[0]?.providerId || 'unknown',
                 createdAt: new Date().toISOString()
             };
             
@@ -56,23 +55,23 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Google Sign-Up
     if (signupWithGoogleBtn) {
-        signupWithGoogleBtn.addEventListener('click', () => {
+        signupWithGoogleBtn.addEventListener('click', function() {
             const provider = new firebase.auth.GoogleAuthProvider();
             
             firebase.auth().signInWithPopup(provider)
-                .then((result) => {
+                .then(function(result) {
                     console.log('Google sign-up successful:', result.user);
                 })
-                .catch((error) => {
+                .catch(function(error) {
                     console.error('Google sign-up error:', error);
-                    alert('Erreur d\'inscription Google: ' + error.message);
+                    alert('Erreur: ' + error.message);
                 });
         });
     }
     
     // Email Sign-Up
     if (signupWithEmailBtn) {
-        signupWithEmailBtn.addEventListener('click', () => {
+        signupWithEmailBtn.addEventListener('click', function() {
             const name = signupName.value.trim();
             const email = signupEmail.value.trim();
             const password = signupPassword.value;
@@ -101,26 +100,32 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Create user with email and password
             firebase.auth().createUserWithEmailAndPassword(email, password)
-                .then((userCredential) => {
+                .then(function(userCredential) {
                     // Update profile with display name
                     return userCredential.user.updateProfile({
                         displayName: name
-                    }).then(() => {
+                    }).then(function() {
                         console.log('Email sign-up successful:', userCredential.user);
                     });
                 })
-                .catch((error) => {
+                .catch(function(error) {
                     console.error('Email sign-up error:', error);
                     
+                    let errorMessage = 'Erreur d\'inscription: ';
+                    
                     if (error.code === 'auth/email-already-in-use') {
-                        alert('Cet email est déjà utilisé. Veuillez vous connecter.');
+                        errorMessage = 'Cet email est déjà utilisé. Veuillez vous connecter.';
                     } else if (error.code === 'auth/invalid-email') {
-                        alert('Email invalide');
+                        errorMessage = 'Email invalide';
                     } else if (error.code === 'auth/weak-password') {
-                        alert('Mot de passe trop faible');
+                        errorMessage = 'Le mot de passe doit contenir au moins 6 caractères';
+                    } else if (error.code === 'auth/api-key-not-valid') {
+                        errorMessage = 'Erreur de configuration Firebase. Veuillez contacter l\'administrateur.';
                     } else {
-                        alert('Erreur d\'inscription: ' + error.message);
+                        errorMessage = 'Erreur: ' + error.message;
                     }
+                    
+                    alert(errorMessage);
                 });
         });
     }

@@ -5,8 +5,8 @@ const firebaseConfig = {
     projectId: "yuntra-tv",
     storageBucket: "yuntra-tv.firebasestorage.app",
     messagingSenderId: "841787490492",
-    appId: "1:841787490492:web:127a9d1a5bfff5cd8e756b",
-    measurementId: "G-K55K1D1HJ8S"
+    appId: "1:841787490492:web:127a9d1a5bfff5cd8e756b"
+    // Remove measurementId if you're not using Analytics
 };
 
 // Initialize Firebase
