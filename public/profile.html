@@ -248,5 +248,48 @@
     </script>
 
     <script src="profile.js"></script>
+<!-- Step 2: Camera Check -->
+<div class="form-step" id="step2">
+    <h3 class="step-title">📹 Camera Check</h3>
+    
+    <div class="camera-check">
+        <div class="camera-check-header">
+            <span class="check-icon">📷</span>
+            <span>We need to verify your camera is working</span>
+        </div>
+        <div class="camera-preview">
+            <video id="previewVideo" autoplay muted playsinline></video>
+            <div class="camera-placeholder" id="cameraPlaceholder">
+                <span class="placeholder-icon">📷</span>
+                <p>Click "Test Camera" to start</p>
+            </div>
+        </div>
+        
+        <div class="camera-requirements">
+            <div class="requirement" id="reqCamera">
+                <span class="req-icon">🔴</span>
+                Camera access only
+            </div>
+        </div>
+        
+        <button type="button" id="testCameraBtn" class="btn btn-outline btn-large">
+            <span class="btn-icon">📷</span>
+            Test Camera
+        </button>
+        
+        <p class="mic-note" style="color: #48bb78; margin-top: 15px; text-align: center;">
+            🎤 Microphone will be enabled automatically when you start chatting
+        </p>
+    </div>
+
+    <div class="form-navigation">
+        <button type="button" class="btn btn-outline prev-step" onclick="prevStep(1)">
+            ← Back
+        </button>
+        <button type="button" class="btn btn-primary next-step" onclick="nextStep(3)" id="cameraNextBtn" disabled>
+            Next Step →
+        </button>
+    </div>
+</div>
 </body>
 </html>

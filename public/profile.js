@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const previewVideo = document.getElementById('previewVideo');
     const cameraPlaceholder = document.getElementById('cameraPlaceholder');
     const termsCheckbox = document.getElementById('terms');
+    const cameraNextBtn = document.getElementById('cameraNextBtn');
     
     let localStream = null;
     let cameraTested = false;
@@ -37,21 +38,33 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // Test camera function
+    // Test camera function (only camera, no microphone)
     async function testCamera() {
         try {
             // Show loading state
-            testCameraBtn.textContent = '⏳ Testing...';
+            testCameraBtn.textContent = '⏳ Testing Camera...';
             testCameraBtn.disabled = true;
             
+            // Request ONLY camera, not microphone
             localStream = await navigator.mediaDevices.getUserMedia({ 
                 video: true, 
-                audio: true 
+                audio: false  // Don't request microphone
             });
             
             previewVideo.srcObject = localStream;
             cameraPlaceholder.style.display = 'none';
             cameraTested = true;
+            
+            // Update requirement indicator
+            const reqCamera = document.getElementById('reqCamera');
+            if (reqCamera) {
+                reqCamera.innerHTML = '<span class="req-icon">✅</span> Camera working!';
+                reqCamera.style.background = '#48bb78';
+                reqCamera.style.color = 'white';
+            }
+            
+            // Enable next button
+            if (cameraNextBtn) cameraNextBtn.disabled = false;
             
             // Show success message
             testCameraBtn.innerHTML = '✅ Camera Working';
@@ -61,12 +74,26 @@ document.addEventListener('DOMContentLoaded', () => {
             
         } catch (error) {
             console.error('Camera error:', error);
-            alert('❌ Unable to access camera. Please make sure you have granted permission and have a working camera/microphone.');
-            testCameraBtn.innerHTML = '🔍 Test Camera Again';
+            
+            // Show specific error message
+            if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                alert('❌ Camera access denied. Please allow camera access in your browser settings.');
+            } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+                alert('❌ No camera found. Please connect a camera and try again.');
+            } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+                alert('❌ Your camera is already in use by another application.');
+            } else {
+                alert('❌ Unable to access camera. Please check your camera.');
+            }
+            
+            testCameraBtn.innerHTML = '📷 Test Camera Again';
             testCameraBtn.style.background = '';
             testCameraBtn.style.color = '';
             testCameraBtn.disabled = false;
             cameraTested = false;
+            
+            // Disable next button
+            if (cameraNextBtn) cameraNextBtn.disabled = true;
         }
     }
     
@@ -102,6 +129,12 @@ document.addEventListener('DOMContentLoaded', () => {
             errors.push('Please select your gender');
         }
         
+        // Check country
+        const country = formData.get('country');
+        if (!country || country === '') {
+            errors.push('Please select your country');
+        }
+        
         // Check terms
         if (!termsCheckbox.checked) {
             errors.push('You must agree to the Terms of Service and Community Guidelines');
@@ -109,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Check if camera was tested
         if (!cameraTested) {
-            errors.push('Please test your camera and microphone before continuing');
+            errors.push('Please test your camera before continuing');
         }
         
         return errors;
