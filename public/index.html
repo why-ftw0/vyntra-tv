@@ -74,22 +74,31 @@
                         <span id="localGenderBadge" class="gender-badge"></span>
                         <span id="localCountryBadge" class="country-badge"></span>
                     </div>
+                    
+                    <!-- ===== ONLY ONE CAMERA PERMISSION OVERLAY ===== -->
                     <div class="camera-permission-overlay" id="cameraPermissionOverlay">
                         <div class="permission-content">
                             <div class="camera-icon">📷</div>
                             <h3>Camera Access Required</h3>
-                            <p>Vyntra needs access to your camera and microphone to connect you with strangers</p>
-                            <button id="requestPermissionBtn" class="btn btn-primary">Enable Camera & Microphone</button>
+                            <p>Vyntra needs access to your camera to connect you with strangers</p>
+                            <p style="color: #48bb78; margin: 10px 0;">
+                                🎤 Microphone will be automatically enabled
+                            </p>
+                            <button id="requestPermissionBtn" class="btn btn-primary btn-large">
+                                <span class="btn-icon">📷</span>
+                                Enable Camera
+                            </button>
+                            <p style="margin-top: 15px; color: #999; font-size: 0.9rem;">
+                                🔒 Your privacy is important - we never record or store your video
+                            </p>
                         </div>
                     </div>
+                    <!-- ===== END OF CAMERA PERMISSION OVERLAY ===== -->
                     
                     <!-- Camera Controls -->
                     <div class="camera-controls">
                         <button id="toggleVideoBtn" class="control-btn" title="Toggle Camera">
                             <span class="control-icon">📹</span>
-                        </button>
-                        <button id="toggleAudioBtn" class="control-btn" title="Toggle Microphone">
-                            <span class="control-icon">🎤</span>
                         </button>
                     </div>
                 </div>
@@ -143,7 +152,7 @@
         </main>
     </div>
 
-    <!-- Subscription Upgrade Modal -->
+    <!-- Subscription Modal -->
     <div id="subscriptionModal" class="modal">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
@@ -175,13 +184,6 @@
                             <p>Toggle camera on/off during chats</p>
                         </div>
                     </div>
-                    <div class="feature">
-                        <span class="feature-icon">🎤</span>
-                        <div class="feature-text">
-                            <h3>Mic Controls</h3>
-                            <p>Mute/unmute anytime</p>
-                        </div>
-                    </div>
                 </div>
                 
                 <div class="pricing-box">
@@ -202,26 +204,5 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="script.js"></script>
-<button id="requestPermissionBtn" class="btn btn-primary btn-large">
-    <span class="btn-icon">📷</span>
-    Enable Camera
-</button>
-<div class="camera-permission-overlay" id="cameraPermissionOverlay">
-    <div class="permission-content">
-        <div class="camera-icon">📷</div>
-        <h3>Camera Access Required</h3>
-        <p>Vyntra needs access to your camera to connect you with strangers</p>
-        <p style="color: #48bb78; margin: 10px 0;">
-            🎤 Microphone will be automatically enabled
-        </p>
-        <button id="requestPermissionBtn" class="btn btn-primary btn-large">
-            <span class="btn-icon">📷</span>
-            Enable Camera
-        </button>
-        <p style="margin-top: 15px; color: #999; font-size: 0.9rem;">
-            🔒 Your privacy is important - we never record or store your video
-        </p>
-    </div>
-</div>
 </body>
 </html>
