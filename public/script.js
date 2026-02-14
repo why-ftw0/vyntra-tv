@@ -102,9 +102,9 @@ if (localCountryBadge) localCountryBadge.textContent = getCountryFlag(userProfil
 let preferredGender = 'all';
 let preferredCountry = 'all';
 
-// Camera/audio state
+// Camera state
 let isVideoEnabled = true;
-let isAudioEnabled = true;
+let isAudioEnabled = true; // Always true by default
 
 // WebRTC variables
 let localStream;
@@ -149,51 +149,61 @@ const configuration = {
     ]
 };
 
-// Initialize local video
+// Initialize local video (camera and microphone both enabled)
 async function initLocalVideo() {
     try {
+        // Request both camera and microphone
         localStream = await navigator.mediaDevices.getUserMedia({ 
             video: true, 
-            audio: true 
+            audio: true  // Always request microphone
         });
+        
         if (localVideo) localVideo.srcObject = localStream;
         if (cameraPermissionOverlay) cameraPermissionOverlay.style.display = 'none';
         if (startBtn) startBtn.disabled = false;
         
-        // Setup camera controls
+        // Setup camera controls (video toggle only)
         setupCameraControls();
         
         socket.emit('user-ready', userProfileData);
         
+        console.log('Camera and microphone initialized successfully');
+        
     } catch (error) {
         console.error('Error accessing media devices:', error);
+        
+        // Show more specific error message
+        if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+            alert('Please allow camera and microphone access to use Vyntra');
+        } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+            alert('No camera or microphone found. Please connect a device and try again.');
+        } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+            alert('Your camera or microphone is already in use by another application.');
+        } else {
+            alert('Unable to access camera or microphone. Please check your devices.');
+        }
+        
         if (cameraPermissionOverlay) cameraPermissionOverlay.style.display = 'flex';
         if (startBtn) startBtn.disabled = true;
     }
 }
 
-// Setup camera controls
+// Setup camera controls (video toggle only, audio always on)
 function setupCameraControls() {
-    if (!toggleVideoBtn || !toggleAudioBtn) return;
+    if (!toggleVideoBtn) return;
     
     if (!isPremium) {
         toggleVideoBtn.style.opacity = '0.5';
-        toggleAudioBtn.style.opacity = '0.5';
-        toggleVideoBtn.title = 'Premium feature (Upgrade to use)';
-        toggleAudioBtn.title = 'Premium feature (Upgrade to use)';
+        toggleVideoBtn.title = 'Premium feature (Upgrade to toggle camera)';
         
         toggleVideoBtn.addEventListener('click', () => {
-            showSubscriptionModal();
-        });
-        
-        toggleAudioBtn.addEventListener('click', () => {
             showSubscriptionModal();
         });
         
         return;
     }
     
-    // Video toggle
+    // Video toggle only (audio is always on)
     toggleVideoBtn.addEventListener('click', () => {
         if (localStream) {
             const videoTrack = localStream.getVideoTracks()[0];
@@ -202,19 +212,6 @@ function setupCameraControls() {
                 videoTrack.enabled = isVideoEnabled;
                 toggleVideoBtn.classList.toggle('off', !isVideoEnabled);
                 toggleVideoBtn.innerHTML = isVideoEnabled ? '📹' : '🚫';
-            }
-        }
-    });
-    
-    // Audio toggle
-    toggleAudioBtn.addEventListener('click', () => {
-        if (localStream) {
-            const audioTrack = localStream.getAudioTracks()[0];
-            if (audioTrack) {
-                isAudioEnabled = !isAudioEnabled;
-                audioTrack.enabled = isAudioEnabled;
-                toggleAudioBtn.classList.toggle('off', !isAudioEnabled);
-                toggleAudioBtn.innerHTML = isAudioEnabled ? '🎤' : '🔇';
             }
         }
     });
@@ -475,6 +472,9 @@ const requestPermissionBtn = document.getElementById('requestPermissionBtn');
 if (requestPermissionBtn) {
     requestPermissionBtn.addEventListener('click', initLocalVideo);
 }
+
+// Remove all mobile-specific microphone code
+// No mobile detection, no mic tests, no permission status indicators
 
 // Initialize
 updateUIState();

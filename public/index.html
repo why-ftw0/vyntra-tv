@@ -202,5 +202,26 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="script.js"></script>
+<!-- Add viewport for mobile devices -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<div class="camera-permission-overlay" id="cameraPermissionOverlay">
+    <div class="permission-content">
+        <div class="camera-icon">📷</div>
+        <h3>Camera Access Required</h3>
+        <p>Vyntra needs access to your camera to connect you with strangers</p>
+        <p class="mic-note" style="color: #48bb78; margin: 10px 0;">
+            🎤 Microphone will be automatically enabled
+        </p>
+        <button id="requestPermissionBtn" class="btn btn-primary btn-large">
+            <span class="btn-icon">📷</span>
+            Enable Camera
+        </button>
+        <p class="cancel-anytime" style="margin-top: 15px; color: #999; font-size: 0.9rem;">
+            🔒 Your privacy is important - we never record or store your video
+        </p>
+    </div>
+</div>
+</div>
 </body>
 </html>
