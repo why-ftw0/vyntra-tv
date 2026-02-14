@@ -21,29 +21,25 @@ const chatStatus = document.getElementById('chatStatus');
 const filterBar = document.getElementById('filterBar');
 const subscriptionStatus = document.getElementById('subscriptionStatus');
 const toggleVideoBtn = document.getElementById('toggleVideoBtn');
-const toggleAudioBtn = document.getElementById('toggleAudioBtn');
 const subscriptionModal = document.getElementById('subscriptionModal');
 const localGenderBadge = document.getElementById('localGenderBadge');
 const localCountryBadge = document.getElementById('localCountryBadge');
 const remoteGenderBadge = document.getElementById('remoteGenderBadge');
 const remoteCountryBadge = document.getElementById('remoteCountryBadge');
-const filterStatus = document.getElementById('filterStatus');
 
 // Check if user has completed profile
 const userProfile = JSON.parse(localStorage.getItem('vyntra_profile'));
 
 if (!userProfile || !userProfile.hasCompletedProfile) {
-    // Redirect to profile page if no profile found
     window.location.href = 'profile.html';
 }
 
-// Check subscription status with profile validation
+// Check subscription status
 function checkSubscriptionStatus() {
     const profile = JSON.parse(localStorage.getItem('vyntra_profile'));
     const isPremiumValue = localStorage.getItem('vyntra_premium') === 'true';
     const expiry = localStorage.getItem('vyntra_expiry');
     
-    // Can't be premium without complete profile
     if (!profile || !profile.hasCompletedProfile) {
         localStorage.setItem('vyntra_premium', 'false');
         return false;
@@ -60,9 +56,7 @@ function checkSubscriptionStatus() {
     return false;
 }
 
-// Set premium status using the function
 let isPremium = checkSubscriptionStatus();
-let subscriptionExpiry = localStorage.getItem('vyntra_expiry');
 
 // Update UI based on premium status
 function updateSubscriptionBadge() {
@@ -78,7 +72,6 @@ function updateSubscriptionBadge() {
     }
 }
 
-// Call this immediately
 updateSubscriptionBadge();
 
 // Load user profile
@@ -104,7 +97,6 @@ let preferredCountry = 'all';
 
 // Camera state
 let isVideoEnabled = true;
-let isAudioEnabled = true; // Always true by default
 
 // WebRTC variables
 let localStream;
@@ -149,46 +141,63 @@ const configuration = {
     ]
 };
 
-// Initialize local video (camera and microphone both enabled)
+// ============== FIXED: Camera Permission Function ==============
 async function initLocalVideo() {
+    console.log('Requesting camera permission...');
+    
     try {
         // Request both camera and microphone
         localStream = await navigator.mediaDevices.getUserMedia({ 
             video: true, 
-            audio: true  // Always request microphone
+            audio: true
         });
         
-        if (localVideo) localVideo.srcObject = localStream;
-        if (cameraPermissionOverlay) cameraPermissionOverlay.style.display = 'none';
-        if (startBtn) startBtn.disabled = false;
+        console.log('Camera and microphone access granted!');
         
-        // Setup camera controls (video toggle only)
+        // Show video in local element
+        if (localVideo) {
+            localVideo.srcObject = localStream;
+        }
+        
+        // Hide the permission overlay
+        if (cameraPermissionOverlay) {
+            cameraPermissionOverlay.style.display = 'none';
+        }
+        
+        // Enable start button
+        if (startBtn) {
+            startBtn.disabled = false;
+        }
+        
+        // Setup camera controls
         setupCameraControls();
         
+        // Tell server user is ready
         socket.emit('user-ready', userProfileData);
-        
-        console.log('Camera and microphone initialized successfully');
         
     } catch (error) {
         console.error('Error accessing media devices:', error);
         
-        // Show more specific error message
+        // Show user-friendly error message
         if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-            alert('Please allow camera and microphone access to use Vyntra');
+            alert('❌ Camera access denied. Please allow camera access in your browser settings and try again.');
         } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-            alert('No camera or microphone found. Please connect a device and try again.');
+            alert('❌ No camera found. Please connect a camera and refresh the page.');
         } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
-            alert('Your camera or microphone is already in use by another application.');
+            alert('❌ Your camera is already in use by another application. Close other apps and try again.');
         } else {
-            alert('Unable to access camera or microphone. Please check your devices.');
+            alert('❌ Unable to access camera. Please check your camera and try again.');
         }
         
-        if (cameraPermissionOverlay) cameraPermissionOverlay.style.display = 'flex';
-        if (startBtn) startBtn.disabled = true;
+        // Keep overlay visible so user can try again
+        if (cameraPermissionOverlay) {
+            cameraPermissionOverlay.style.display = 'flex';
+        }
     }
 }
+// ============== END FIX ==============
 
-// Setup camera controls (video toggle only, audio always on)
+// Setup camera controls
 function setupCameraControls() {
     if (!toggleVideoBtn) return;
     
@@ -203,7 +212,7 @@ function setupCameraControls() {
         return;
     }
     
-    // Video toggle only (audio is always on)
+    // Video toggle only
     toggleVideoBtn.addEventListener('click', () => {
         if (localStream) {
             const videoTrack = localStream.getVideoTracks()[0];
@@ -414,67 +423,81 @@ function stopChatting() {
     if (remoteCountryBadge) remoteCountryBadge.textContent = '';
 }
 
-// Event listeners
-if (startBtn) {
-    startBtn.addEventListener('click', () => {
-        const filters = isPremium ? {
-            gender: preferredGender,
-            country: preferredCountry
-        } : null;
+// ============== FIXED: Event Listeners ==============
+// Make sure the button click works
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Page loaded, setting up event listeners...');
+    
+    // Get the permission button
+    const requestPermissionBtn = document.getElementById('requestPermissionBtn');
+    
+    if (requestPermissionBtn) {
+        console.log('Found permission button, adding click listener');
         
-        socket.emit('find-stranger', userProfileData, filters);
-        startBtn.disabled = true;
-        if (waitingOverlay) waitingOverlay.style.display = 'flex';
-        
-        if (isPremium && filterStatus) {
-            filterStatus.textContent = `Matching with ${preferredGender === 'all' ? 'everyone' : preferredGender} from ${preferredCountry === 'all' ? 'all countries' : preferredCountry}`;
-        }
-    });
-}
+        // Remove any existing listeners and add new one
+        requestPermissionBtn.onclick = function(e) {
+            e.preventDefault();
+            console.log('Enable Camera button clicked!');
+            initLocalVideo();
+        };
+    } else {
+        console.error('Permission button not found! Check ID in HTML');
+    }
+    
+    // Other event listeners
+    if (startBtn) {
+        startBtn.addEventListener('click', () => {
+            const filters = isPremium ? {
+                gender: preferredGender,
+                country: preferredCountry
+            } : null;
+            
+            socket.emit('find-stranger', userProfileData, filters);
+            startBtn.disabled = true;
+            if (waitingOverlay) waitingOverlay.style.display = 'flex';
+            
+            if (isPremium && filterStatus) {
+                filterStatus.textContent = `Matching with ${preferredGender === 'all' ? 'everyone' : preferredGender} from ${preferredCountry === 'all' ? 'all countries' : preferredCountry}`;
+            }
+        });
+    }
 
-if (nextBtn) {
-    nextBtn.addEventListener('click', () => {
-        socket.emit('next-stranger');
-        stopChatting();
-        if (waitingOverlay) waitingOverlay.style.display = 'flex';
-    });
-}
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            socket.emit('next-stranger');
+            stopChatting();
+            if (waitingOverlay) waitingOverlay.style.display = 'flex';
+        });
+    }
 
-if (stopBtn) {
-    stopBtn.addEventListener('click', () => {
-        socket.emit('stop-chatting');
-        stopChatting();
-        if (waitingOverlay) waitingOverlay.style.display = 'none';
-    });
-}
+    if (stopBtn) {
+        stopBtn.addEventListener('click', () => {
+            socket.emit('stop-chatting');
+            stopChatting();
+            if (waitingOverlay) waitingOverlay.style.display = 'none';
+        });
+    }
 
-if (sendBtn) {
-    sendBtn.addEventListener('click', () => {
-        const message = messageInput.value.trim();
-        if (message) {
-            socket.emit('message', message);
-            displayMessage(message, 'me');
-            messageInput.value = '';
-        }
-    });
-}
+    if (sendBtn) {
+        sendBtn.addEventListener('click', () => {
+            const message = messageInput.value.trim();
+            if (message) {
+                socket.emit('message', message);
+                displayMessage(message, 'me');
+                messageInput.value = '';
+            }
+        });
+    }
 
-if (messageInput) {
-    messageInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && sendBtn) {
-            sendBtn.click();
-        }
-    });
-}
+    if (messageInput) {
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && sendBtn) {
+                sendBtn.click();
+            }
+        });
+    }
+});
+// ============== END FIX ==============
 
-// Request permission button
-const requestPermissionBtn = document.getElementById('requestPermissionBtn');
-if (requestPermissionBtn) {
-    requestPermissionBtn.addEventListener('click', initLocalVideo);
-}
-
-// Remove all mobile-specific microphone code
-// No mobile detection, no mic tests, no permission status indicators
-
-// Initialize
+// Initialize UI state
 updateUIState();
